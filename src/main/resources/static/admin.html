@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Admin Dashboard - Customer Feedback</title>
+
+    <link rel="stylesheet" href="/css/style.css">
+
+</head>
+
+<body>
+
+<nav class="navbar">
+
+    <div class="nav-brand">
+        Customer Feedback
+    </div>
+
+    <div class="nav-actions">
+
+        <span
+                id="usernameDisplay"
+                class="username"
+        ></span>
+
+        <span class="role-badge admin">
+            ADMIN
+        </span>
+
+        <button
+                class="btn btn-outline"
+                id="logoutButton"
+        >
+            Logout
+        </button>
+
+    </div>
+
+</nav>
+
+
+<main class="page">
+
+    <div class="container-wide">
+
+        <!-- PAGE TITLE -->
+
+        <div class="page-title">
+
+            <h1>
+                Admin Dashboard
+            </h1>
+
+            <p>
+                Manage customer feedback
+            </p>
+
+        </div>
+
+
+        <!-- ALERTS -->
+
+        <div
+                id="errorMessage"
+                class="alert error hidden"
+        ></div>
+
+        <div
+                id="successMessage"
+                class="alert success hidden"
+        ></div>
+
+
+        <!-- =========================
+             ADD FEEDBACK
+        ========================== -->
+
+        <section
+                id="addSection"
+                class="card hidden"
+        >
+
+            <div class="card-header">
+
+                <div>
+
+                    <h2>
+                        Add Feedback
+                    </h2>
+
+                    <p class="card-subtitle">
+                        Create feedback for a user
+                    </p>
+
+                </div>
+
+                <button
+                        id="cancelAddButton"
+                        class="btn btn-light"
+                >
+                    Cancel
+                </button>
+
+            </div>
+
+
+            <form id="addForm">
+
+                <div class="form-group">
+
+                    <label for="userId">
+                        User ID
+                    </label>
+
+                    <input
+                            type="number"
+                            id="userId"
+                            min="1"
+                            placeholder="Enter user ID"
+                            required
+                    >
+
+                    <small class="input-help">
+                        Enter the ID of the user for whom
+                        you want to create feedback.
+                    </small>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="addFeedback">
+                        Feedback
+                    </label>
+
+                    <textarea
+                            id="addFeedback"
+                            rows="6"
+                            placeholder="Write feedback here..."
+                            required
+                    ></textarea>
+
+                </div>
+
+
+                <div class="form-actions">
+
+                    <button
+                            type="submit"
+                            class="btn btn-primary add-btn"
+                            id="addButton"
+                    >
+                        Add Feedback
+                    </button>
+
+                    <button
+                            type="button"
+                            class="btn btn-light"
+                            id="cancelAddButton2"
+                    >
+                        Cancel
+                    </button>
+
+                </div>
+
+            </form>
+
+        </section>
+
+
+        <!-- =========================
+             EDIT FEEDBACK
+        ========================== -->
+
+        <section
+                id="editSection"
+                class="card hidden"
+        >
+
+            <div class="card-header">
+
+                <div>
+
+                    <h2>
+                        Edit Feedback
+                    </h2>
+
+                    <p class="card-subtitle">
+                        Update selected feedback
+                    </p>
+
+                </div>
+
+                <button
+                        id="cancelEditButton"
+                        class="btn btn-light"
+                >
+                    Cancel
+                </button>
+
+            </div>
+
+
+            <form id="editForm">
+
+                <div class="form-group">
+
+                    <label for="editFeedback">
+                        Feedback
+                    </label>
+
+                    <textarea
+                            id="editFeedback"
+                            rows="6"
+                            placeholder="Update feedback..."
+                            required
+                    ></textarea>
+
+                </div>
+
+
+                <div class="form-actions">
+
+                    <button
+                            type="submit"
+                            class="btn btn-primary"
+                            id="updateButton"
+                    >
+                        Update Feedback
+                    </button>
+
+                    <button
+                            type="button"
+                            class="btn btn-light"
+                            id="cancelEditButton2"
+                    >
+                        Cancel
+                    </button>
+
+                </div>
+
+            </form>
+
+        </section>
+
+
+        <!-- =========================
+             FEEDBACK TABLE
+        ========================== -->
+
+        <section class="card table-card">
+
+            <div class="table-header">
+
+                <div>
+
+                    <h2>
+                        All Feedback
+                    </h2>
+
+                    <p class="card-subtitle">
+                        View, add, edit or delete feedback
+                    </p>
+
+                </div>
+
+
+                <div class="table-header-actions">
+
+                    <button
+                            id="addFeedbackButton"
+                            class="btn btn-primary admin-add-btn"
+                    >
+                        + Add Feedback
+                    </button>
+
+                    <span
+                            id="recordCount"
+                            class="record-count"
+                    >
+                        0 records
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <!-- LOADING -->
+
+            <div
+                    id="tableLoading"
+                    class="loading"
+            >
+                Loading feedback...
+            </div>
+
+
+            <!-- TABLE -->
+
+            <div
+                    id="tableContainer"
+                    class="table-responsive hidden"
+            >
+
+                <table>
+
+                    <thead>
+
+                    <tr>
+
+                        <th>
+                            ID
+                        </th>
+
+                        <th>
+                            User
+                        </th>
+
+                        <th>
+                            Feedback
+                        </th>
+
+                        <th>
+                            Date
+                        </th>
+
+                        <th>
+                            Actions
+                        </th>
+
+                    </tr>
+
+                    </thead>
+
+                    <tbody
+                            id="feedbackTableBody"
+                    >
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+    </div>
+
+</main>
+
+
+<!-- =========================
+     VIEW MODAL
+========================== -->
+
+<div
+        id="viewModal"
+        class="modal hidden"
+>
+
+    <div class="modal-content">
+
+        <div class="modal-header">
+
+            <h2>
+                Feedback Details
+            </h2>
+
+            <button
+                    id="closeModalButton"
+                    class="modal-close"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <div class="modal-body">
+
+            <div class="detail-row">
+
+                <span>
+                    Feedback ID
+                </span>
+
+                <strong id="modalId"></strong>
+
+            </div>
+
+
+            <div class="detail-row">
+
+                <span>
+                    User
+                </span>
+
+                <strong id="modalUser"></strong>
+
+            </div>
+
+
+            <div class="detail-row">
+
+                <span>
+                    Date
+                </span>
+
+                <strong id="modalDate"></strong>
+
+            </div>
+
+
+            <div class="modal-feedback">
+
+                <span>
+                    Feedback
+                </span>
+
+                <p id="modalFeedback"></p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script src="/js/admin.js"></script>
+
+</body>
+
+</html>
