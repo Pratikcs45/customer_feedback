@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>My Feedback</title>
+
+    <link rel="stylesheet" href="/css/style.css">
+
+</head>
+
+<body>
+
+<nav class="navbar">
+
+    <div class="nav-brand">
+        Customer Feedback
+    </div>
+
+    <div class="nav-actions">
+
+        <span
+                id="usernameDisplay"
+                class="username"
+        ></span>
+
+        <span class="role-badge">
+            USER
+        </span>
+
+        <button
+                class="btn btn-outline"
+                id="logoutButton"
+        >
+            Logout
+        </button>
+
+    </div>
+
+</nav>
+
+
+<main class="page">
+
+    <div class="container">
+
+        <div class="page-title">
+
+            <h1>
+                Customer Feedback
+            </h1>
+
+            <p>
+                We value your opinion
+            </p>
+
+        </div>
+
+
+        <div
+                id="errorMessage"
+                class="alert error hidden"
+        ></div>
+
+        <div
+                id="successMessage"
+                class="alert success hidden"
+        ></div>
+
+
+        <!-- ADD / EDIT -->
+
+        <section class="card">
+
+            <div class="card-header">
+
+                <div>
+
+                    <h2 id="formTitle">
+                        Add Feedback
+                    </h2>
+
+                    <p class="card-subtitle">
+                        Tell us about your experience
+                    </p>
+
+                </div>
+
+                <button
+                        id="cancelEditButton"
+                        class="btn btn-light hidden"
+                >
+                    Cancel
+                </button>
+
+            </div>
+
+
+            <form id="feedbackForm">
+
+                <div class="form-group">
+
+                    <label for="feedback">
+                        Your Feedback
+                    </label>
+
+                    <textarea
+                            id="feedback"
+                            rows="7"
+                            placeholder="Write your feedback here..."
+                            required
+                    ></textarea>
+
+                </div>
+
+
+                <button
+                        type="submit"
+                        id="submitFeedbackButton"
+                        class="btn btn-primary"
+                >
+                    Submit Feedback
+                </button>
+
+            </form>
+
+        </section>
+
+
+        <!-- PREVIOUS FEEDBACK -->
+
+        <section class="section">
+
+            <div class="section-heading">
+
+                <div>
+
+                    <h2>
+                        Your Previous Feedback
+                    </h2>
+
+                    <p>
+                        View and edit your submitted feedback
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div id="feedbackContainer">
+
+                <div class="loading">
+                    Loading feedback...
+                </div>
+
+            </div>
+
+        </section>
+
+    </div>
+
+</main>
+
+
+<script src="/js/feedback.js"></script>
+
+</body>
+</html>
