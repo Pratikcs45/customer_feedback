@@ -9,6 +9,7 @@ import com.example.customer_feedback.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.time.LocalDateTime;
 
 @Service
 public class FeedbackService {
@@ -68,6 +69,7 @@ public class FeedbackService {
         }
 
         feedback.setFeedback(request.getFeedback());
+        feedback.setUpdatedAt(LocalDateTime.now());
 
         return feedbackRepository.save(feedback);
     }

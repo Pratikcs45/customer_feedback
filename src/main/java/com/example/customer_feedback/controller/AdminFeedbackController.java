@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("/api/admin/feedback")
@@ -91,6 +92,7 @@ public class AdminFeedbackController {
                 );
 
         feedback.setFeedback(request.getFeedback());
+        feedback.setUpdatedAt(LocalDateTime.now());
 
         return ResponseEntity.ok(
                 feedbackRepository.save(feedback)
