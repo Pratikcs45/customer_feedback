@@ -1,5 +1,4 @@
-const ADMIN_API =
-    "/api/admin/feedback";
+const ADMIN_API = "/api/admin/feedback";
 
 let feedbackList = [];
 
@@ -7,7 +6,7 @@ let editingId = null;
 
 
 /* =========================
-   AUTH
+   AUTHENTICATION
 ========================= */
 
 function checkAdminAuthentication() {
@@ -39,16 +38,106 @@ if (!checkAdminAuthentication()) {
    USERNAME
 ========================= */
 
-document
-    .getElementById("usernameDisplay")
-    .textContent =
-    localStorage.getItem("username")
-        || "Admin";
+document.getElementById(
+    "usernameDisplay"
+).textContent =
+    localStorage.getItem("username") || "Admin";
 
 
 /* =========================
-   ELEMENTS
+   DOM ELEMENTS
 ========================= */
+
+// Alerts
+
+const errorMessage =
+    document.getElementById(
+        "errorMessage"
+    );
+
+const successMessage =
+    document.getElementById(
+        "successMessage"
+    );
+
+
+// Add
+
+const addSection =
+    document.getElementById(
+        "addSection"
+    );
+
+const addFeedbackButton =
+    document.getElementById(
+        "addFeedbackButton"
+    );
+
+const cancelAddButton =
+    document.getElementById(
+        "cancelAddButton"
+    );
+
+const cancelAddButton2 =
+    document.getElementById(
+        "cancelAddButton2"
+    );
+
+const addForm =
+    document.getElementById(
+        "addForm"
+    );
+
+const userIdInput =
+    document.getElementById(
+        "userId"
+    );
+
+const addFeedbackInput =
+    document.getElementById(
+        "addFeedback"
+    );
+
+const addButton =
+    document.getElementById(
+        "addButton"
+    );
+
+
+// Edit
+
+const editSection =
+    document.getElementById(
+        "editSection"
+    );
+
+const cancelEditButton =
+    document.getElementById(
+        "cancelEditButton"
+    );
+
+const cancelEditButton2 =
+    document.getElementById(
+        "cancelEditButton2"
+    );
+
+const editForm =
+    document.getElementById(
+        "editForm"
+    );
+
+const editFeedback =
+    document.getElementById(
+        "editFeedback"
+    );
+
+const updateButton =
+    document.getElementById(
+        "updateButton"
+    );
+
+
+// Table
 
 const tableBody =
     document.getElementById(
@@ -70,47 +159,40 @@ const recordCount =
         "recordCount"
     );
 
-const editSection =
+
+// Modal
+
+const viewModal =
     document.getElementById(
-        "editSection"
+        "viewModal"
     );
 
-const editFeedback =
+const closeModalButton =
     document.getElementById(
-        "editFeedback"
-    );
-
-const editForm =
-    document.getElementById(
-        "editForm"
-    );
-
-const updateButton =
-    document.getElementById(
-        "updateButton"
+        "closeModalButton"
     );
 
 
 /* =========================
-   ALERTS
+   ALERT FUNCTIONS
 ========================= */
 
 function showError(message) {
 
-    const element =
-        document.getElementById(
-            "errorMessage"
-        );
+    errorMessage.textContent =
+        message;
 
-    element.textContent = message;
+    errorMessage.classList.remove(
+        "hidden"
+    );
 
-    element.classList.remove(
+    successMessage.classList.add(
         "hidden"
     );
 
     setTimeout(() => {
 
-        element.classList.add(
+        errorMessage.classList.add(
             "hidden"
         );
 
@@ -120,20 +202,20 @@ function showError(message) {
 
 function showSuccess(message) {
 
-    const element =
-        document.getElementById(
-            "successMessage"
-        );
+    successMessage.textContent =
+        message;
 
-    element.textContent = message;
+    successMessage.classList.remove(
+        "hidden"
+    );
 
-    element.classList.remove(
+    errorMessage.classList.add(
         "hidden"
     );
 
     setTimeout(() => {
 
-        element.classList.add(
+        successMessage.classList.add(
             "hidden"
         );
 
@@ -142,7 +224,7 @@ function showSuccess(message) {
 
 
 /* =========================
-   API
+   API REQUEST
 ========================= */
 
 async function apiRequest(
@@ -154,7 +236,9 @@ async function apiRequest(
         localStorage.getItem("token");
 
     const headers = {
-        "Content-Type": "application/json",
+        "Content-Type":
+            "application/json",
+
         ...options.headers
     };
 
@@ -174,15 +258,26 @@ async function apiRequest(
         );
 
 
+    /*
+     * JWT expired / invalid
+     */
+
     if (response.status === 401) {
 
-        localStorage.clear();
+    localStorage.clear();
 
-        window.location.href =
-            "/login.html";
+    window.location.href =
+        "/login.html";
 
-        return;
-    }
+    return null;
+}
+
+if (response.status === 403) {
+
+    throw new Error(
+        "You do not have permission to perform this action or user does not exist"
+    );
+}
 
 
     return response;
@@ -190,11 +285,8 @@ async function apiRequest(
 
 
 /* =========================
-   LOAD
+   LOAD FEEDBACK
 ========================= */
-
-loadFeedback();
-
 
 async function loadFeedback() {
 
@@ -213,6 +305,12 @@ async function loadFeedback() {
             await apiRequest(
                 ADMIN_API
             );
+
+
+        if (!response) {
+            return;
+        }
+
 
         const data =
             await response.json();
@@ -235,7 +333,8 @@ async function loadFeedback() {
     } catch (error) {
 
         showError(
-            error.message
+            error.message ||
+            "Unable to load feedback"
         );
 
     } finally {
@@ -252,7 +351,7 @@ async function loadFeedback() {
 
 
 /* =========================
-   TABLE
+   RENDER TABLE
 ========================= */
 
 function renderTable() {
@@ -269,12 +368,14 @@ function renderTable() {
 
         tableBody.innerHTML = `
             <tr>
+
                 <td
-                    colspan="5"
-                    class="no-data"
+                        colspan="5"
+                        class="no-data"
                 >
                     No feedback found
                 </td>
+
             </tr>
         `;
 
@@ -283,222 +384,343 @@ function renderTable() {
 
 
     tableBody.innerHTML =
-        feedbackList.map(item => {
+        feedbackList.map(
+            item => {
 
-            const username =
-                item.user?.username
-                    || "User";
-
-
-            const date =
-                item.createdAt
-                    ? new Date(
-                        item.createdAt
-                    ).toLocaleString()
-                    : "-";
+                const username =
+                    item.user?.username ||
+                    "User";
 
 
-            const feedback =
-                escapeHtml(
-                    item.feedback
+                const date =
+                    item.createdAt
+                        ? new Date(
+                            item.createdAt
+                        ).toLocaleString()
+                        : "-";
+
+
+                return `
+                    <tr>
+
+                        <td>
+                            #${item.id}
+                        </td>
+
+                        <td>
+                            <span class="user-name">
+                                ${escapeHtml(
+                                    username
+                                )}
+                            </span>
+                        </td>
+
+                        <td>
+
+                            <div class="feedback-preview">
+                                ${escapeHtml(
+                                    item.feedback
+                                )}
+                            </div>
+
+                        </td>
+
+                        <td>
+                            ${date}
+                        </td>
+
+                        <td>
+
+                            <div class="table-actions">
+
+                                <button
+                                        class="btn btn-view"
+                                        onclick="viewFeedback(${item.id})"
+                                >
+                                    View
+                                </button>
+
+                                <button
+                                        class="btn btn-edit"
+                                        onclick="startEdit(${item.id})"
+                                >
+                                    Edit
+                                </button>
+
+                                <button
+                                        class="btn btn-delete"
+                                        onclick="deleteFeedback(${item.id})"
+                                >
+                                    Delete
+                                </button>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+                `;
+
+            }
+        ).join("");
+}
+
+
+/* =========================
+   OPEN ADD FORM
+========================= */
+
+addFeedbackButton.addEventListener(
+    "click",
+    function () {
+
+        // Hide edit if open
+        cancelEdit();
+
+
+        addForm.reset();
+
+        addSection.classList.remove(
+            "hidden"
+        );
+
+
+        window.scrollTo({
+            top: 0,
+            behavior: "smooth"
+        });
+
+
+        userIdInput.focus();
+    }
+);
+
+
+/* =========================
+   CANCEL ADD
+========================= */
+
+function cancelAdd() {
+
+    addForm.reset();
+
+    addSection.classList.add(
+        "hidden"
+    );
+}
+
+
+cancelAddButton.addEventListener(
+    "click",
+    cancelAdd
+);
+
+
+cancelAddButton2.addEventListener(
+    "click",
+    cancelAdd
+);
+
+
+/* =========================
+   ADD FEEDBACK
+========================= */
+
+addForm.addEventListener(
+    "submit",
+    async function (event) {
+
+        event.preventDefault();
+
+
+        const userId =
+            userIdInput.value.trim();
+
+        const feedback =
+            addFeedbackInput.value.trim();
+
+
+        if (!userId) {
+
+            showError(
+                "User ID is required"
+            );
+
+            return;
+        }
+
+
+        if (
+            Number(userId) <= 0
+        ) {
+
+            showError(
+                "Please enter a valid User ID"
+            );
+
+            return;
+        }
+
+
+        if (!feedback) {
+
+            showError(
+                "Feedback is required"
+            );
+
+            return;
+        }
+
+
+        addButton.disabled = true;
+
+        addButton.textContent =
+            "Adding...";
+
+
+        try {
+
+            /*
+             * Backend API:
+             *
+             * POST
+             * /api/admin/feedback?userId=1
+             */
+
+            const response =
+                await apiRequest(
+                    `${ADMIN_API}?userId=${encodeURIComponent(userId)}`,
+                    {
+                        method: "POST",
+
+                        body: JSON.stringify({
+                            feedback:
+                                feedback
+                        })
+                    }
                 );
 
 
-            return `
-                <tr>
-
-                    <td>
-                        #${item.id}
-                    </td>
-
-                    <td>
-                        <span class="user-name">
-                            ${escapeHtml(
-                                username
-                            )}
-                        </span>
-                    </td>
-
-                    <td>
-                        <div class="feedback-preview">
-                            ${feedback}
-                        </div>
-                    </td>
-
-                    <td>
-                        ${date}
-                    </td>
-
-                    <td>
-
-                        <div class="table-actions">
-
-                            <button
-                                class="btn btn-view"
-                                onclick="viewFeedback(${item.id})"
-                            >
-                                View
-                            </button>
-
-                            <button
-                                class="btn btn-edit"
-                                onclick="startEdit(${item.id})"
-                            >
-                                Edit
-                            </button>
-
-                            <button
-                                class="btn btn-delete"
-                                onclick="deleteFeedback(${item.id})"
-                            >
-                                Delete
-                            </button>
-
-                        </div>
-
-                    </td>
-
-                </tr>
-            `;
-
-        }).join("");
-}
-
-
-/* =========================
-   VIEW
-========================= */
-
-function viewFeedback(id) {
-
-    const item =
-        feedbackList.find(
-            feedback => feedback.id === id
-        );
-
-    if (!item) {
-        return;
-    }
-
-
-    document.getElementById(
-        "modalId"
-    ).textContent =
-        `#${item.id}`;
-
-
-    document.getElementById(
-        "modalUser"
-    ).textContent =
-        item.user?.username || "User";
-
-
-    document.getElementById(
-        "modalDate"
-    ).textContent =
-        item.createdAt
-            ? new Date(
-                item.createdAt
-            ).toLocaleString()
-            : "-";
-
-
-    document.getElementById(
-        "modalFeedback"
-    ).textContent =
-        item.feedback;
-
-
-    document
-        .getElementById("viewModal")
-        .classList.remove("hidden");
-}
-
-
-/* =========================
-   CLOSE MODAL
-========================= */
-
-document
-    .getElementById(
-        "closeModalButton"
-    )
-    .addEventListener(
-        "click",
-        closeModal
-    );
-
-
-document
-    .getElementById(
-        "viewModal"
-    )
-    .addEventListener(
-        "click",
-        function(event) {
-
-            if (
-                event.target ===
-                this
-            ) {
-                closeModal();
+            if (!response) {
+                return;
             }
 
+
+            const data =
+                await response.json();
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    typeof data === "string"
+                        ? data
+                        : "Unable to add feedback"
+                );
+            }
+
+
+            showSuccess(
+                "Feedback added successfully"
+            );
+
+
+            cancelAdd();
+
+
+            await loadFeedback();
+
+        } catch (error) {
+
+            showError(
+                error.message ||
+                "Unable to add feedback"
+            );
+
+        } finally {
+
+            addButton.disabled = false;
+
+            addButton.textContent =
+                "Add Feedback";
         }
-    );
-
-
-function closeModal() {
-
-    document
-        .getElementById("viewModal")
-        .classList.add("hidden");
-}
+    }
+);
 
 
 /* =========================
-   EDIT
+   START EDIT
 ========================= */
 
 function startEdit(id) {
 
     const item =
         feedbackList.find(
-            feedback => feedback.id === id
+            feedback =>
+                feedback.id === id
         );
 
+
     if (!item) {
+
+        showError(
+            "Feedback not found"
+        );
+
         return;
     }
 
+
+    // Hide add form
+    cancelAdd();
+
+
     editingId = id;
+
 
     editFeedback.value =
         item.feedback;
+
 
     editSection.classList.remove(
         "hidden"
     );
 
+
     window.scrollTo({
         top: 0,
         behavior: "smooth"
     });
+
+
+    editFeedback.focus();
 }
 
 
 /* =========================
-   UPDATE
+   UPDATE FEEDBACK
 ========================= */
 
 editForm.addEventListener(
     "submit",
-    async function(event) {
+    async function (event) {
 
         event.preventDefault();
 
+
+        if (!editingId) {
+
+            showError(
+                "No feedback selected"
+            );
+
+            return;
+        }
+
+
         const feedback =
             editFeedback.value.trim();
+
 
         if (!feedback) {
 
@@ -532,6 +754,11 @@ editForm.addEventListener(
                 );
 
 
+            if (!response) {
+                return;
+            }
+
+
             const data =
                 await response.json();
 
@@ -553,23 +780,23 @@ editForm.addEventListener(
 
             cancelEdit();
 
+
             await loadFeedback();
 
         } catch (error) {
 
             showError(
-                error.message
+                error.message ||
+                "Unable to update feedback"
             );
 
         } finally {
 
-            updateButton.disabled =
-                false;
+            updateButton.disabled = false;
 
             updateButton.textContent =
                 "Update Feedback";
         }
-
     }
 );
 
@@ -577,16 +804,6 @@ editForm.addEventListener(
 /* =========================
    CANCEL EDIT
 ========================= */
-
-document
-    .getElementById(
-        "cancelEditButton"
-    )
-    .addEventListener(
-        "click",
-        cancelEdit
-    );
-
 
 function cancelEdit() {
 
@@ -600,15 +817,140 @@ function cancelEdit() {
 }
 
 
+cancelEditButton.addEventListener(
+    "click",
+    cancelEdit
+);
+
+
+cancelEditButton2.addEventListener(
+    "click",
+    cancelEdit
+);
+
+
 /* =========================
-   DELETE
+   VIEW FEEDBACK
+========================= */
+
+function viewFeedback(id) {
+
+    const item =
+        feedbackList.find(
+            feedback =>
+                feedback.id === id
+        );
+
+
+    if (!item) {
+
+        showError(
+            "Feedback not found"
+        );
+
+        return;
+    }
+
+
+    document.getElementById(
+        "modalId"
+    ).textContent =
+        `#${item.id}`;
+
+
+    document.getElementById(
+        "modalUser"
+    ).textContent =
+        item.user?.username ||
+        "User";
+
+
+    document.getElementById(
+        "modalDate"
+    ).textContent =
+        item.createdAt
+            ? new Date(
+                item.createdAt
+            ).toLocaleString()
+            : "-";
+
+
+    document.getElementById(
+        "modalFeedback"
+    ).textContent =
+        item.feedback;
+
+
+    viewModal.classList.remove(
+        "hidden"
+    );
+}
+
+
+/* =========================
+   CLOSE MODAL
+========================= */
+
+function closeModal() {
+
+    viewModal.classList.add(
+        "hidden"
+    );
+}
+
+
+closeModalButton.addEventListener(
+    "click",
+    closeModal
+);
+
+
+viewModal.addEventListener(
+    "click",
+    function (event) {
+
+        if (
+            event.target ===
+            viewModal
+        ) {
+
+            closeModal();
+        }
+    }
+);
+
+
+/* =========================
+   DELETE FEEDBACK
 ========================= */
 
 async function deleteFeedback(id) {
 
+    const item =
+        feedbackList.find(
+            feedback =>
+                feedback.id === id
+        );
+
+
+    if (!item) {
+
+        showError(
+            "Feedback not found"
+        );
+
+        return;
+    }
+
+
+    const username =
+        item.user?.username ||
+        "this user";
+
+
     const confirmed =
-        confirm(
-            "Are you sure you want to delete this feedback?"
+        window.confirm(
+            `Are you sure you want to delete feedback #${id} from ${username}?`
         );
 
 
@@ -626,6 +968,11 @@ async function deleteFeedback(id) {
                     method: "DELETE"
                 }
             );
+
+
+        if (!response) {
+            return;
+        }
 
 
         const data =
@@ -651,7 +998,8 @@ async function deleteFeedback(id) {
     } catch (error) {
 
         showError(
-            error.message
+            error.message ||
+            "Unable to delete feedback"
         );
     }
 }
@@ -667,7 +1015,7 @@ document
     )
     .addEventListener(
         "click",
-        function() {
+        function () {
 
             localStorage.clear();
 
@@ -684,9 +1032,19 @@ document
 function escapeHtml(text) {
 
     const div =
-        document.createElement("div");
+        document.createElement(
+            "div"
+        );
 
-    div.textContent = text;
+    div.textContent =
+        text ?? "";
 
     return div.innerHTML;
 }
+
+
+/* =========================
+   INITIAL LOAD
+========================= */
+
+loadFeedback();
