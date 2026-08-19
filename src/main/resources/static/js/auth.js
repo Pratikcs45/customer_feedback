@@ -160,103 +160,118 @@ const registerForm =
 
 if (registerForm) {
 
-    registerForm.addEventListener(
-        "submit",
-        async function (event) {
+    registerForm.addEventListener("submit", async function (event) {
 
-            event.preventDefault();
+        event.preventDefault();
 
-            hideAlerts();
+        hideAlerts();
 
-            const registerButton =
-                document.getElementById("registerButton");
+        const registerButton =
+            document.getElementById("registerButton");
 
-            const username =
-                document.getElementById("username")
-                    .value.trim();
+        const username =
+            document.getElementById("username").value.trim();
 
-            const email =
-                document.getElementById("email")
-                    .value.trim();
+        const email =
+            document.getElementById("email").value.trim();
 
-            const password =
-                document.getElementById("password")
-                    .value;
+        const password =
+            document.getElementById("password").value;
 
-            const confirmPassword =
-                document.getElementById("confirmPassword")
-                    .value;
+        const confirmPassword =
+            document.getElementById("confirmPassword").value;
 
-            if (password !== confirmPassword) {
 
-                showError(
-                    "Passwords do not match"
-                );
+        // Check password
+        if (password !== confirmPassword) {
 
-                return;
+            showError("Passwords do not match");
+
+            return;
+        }
+
+
+        // Disable button
+        registerButton.disabled = true;
+        registerButton.textContent = "Creating account...";
+
+
+        try {
+
+            const response = await fetch(
+                `${API_BASE_URL}/auth/register`,
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+
+                    body: JSON.stringify({
+                        username: username,
+                        email: email,
+                        password: password,
+                        confirmPassword: confirmPassword
+                    })
+                }
+            );
+
+
+            // Try to read JSON only if response has content
+            let data = {};
+
+            const contentType =
+                response.headers.get("content-type");
+
+            if (
+                contentType &&
+                contentType.includes("application/json")
+            ) {
+                data = await response.json();
             }
 
-            registerButton.disabled = true;
-            registerButton.textContent =
-                "Creating account...";
 
-            try {
+            // Registration failed
+            if (!response.ok) {
 
-                const response = await fetch(
-                    `${API_BASE_URL}/auth/register`,
-                    {
-                        method: "POST",
-
-                        headers: {
-                            "Content-Type": "application/json"
-                        },
-
-                        body: JSON.stringify({
-                            username: username,
-                            email: email,
-                            password: password,
-                            confirmPassword: confirmPassword
-                        })
-                    }
-                );
-
-                const data =
-                    await response.json();
-
-                if (!response.ok) {
-
-                    throw new Error(
-                        getErrorMessage(data)
-                    );
-                }
-
-                showSuccess(
-                    "Registration successful. Redirecting to login..."
-                );
-
-                registerForm.reset();
-
-                setTimeout(() => {
-
-                    window.location.href =
-                        "/login.html";
-
-                }, 1500);
-
-            } catch (error) {
-
-                showError(
-                    error.message ||
+                throw new Error(
+                    getErrorMessage(data) ||
                     "Registration failed"
                 );
-
-            } finally {
-
-                registerButton.disabled = false;
-                registerButton.textContent =
-                    "Sign Up";
             }
 
+
+            // Registration successful
+            showSuccess(
+                "Registration successful. Redirecting..."
+            );
+
+            registerForm.reset();
+
+
+            // Redirect to index.html
+            setTimeout(function () {
+
+                window.location.href = "/index.html";
+
+            }, 1500);
+
+
+        } catch (error) {
+
+            console.error("Registration error:", error);
+
+            showError(
+                error.message ||
+                "Registration failed"
+            );
+
+        } finally {
+
+            registerButton.disabled = false;
+            registerButton.textContent = "Sign Up";
+
         }
-    );
+
+    });
 }
